@@ -8,7 +8,7 @@ if (!OPTIONS) {
 }
 
 // Define configuration options
-const opts = JSON.parse(OPTIONS);
+const opts = OPTIONS;
 
 // Create a client with our options
 const client = new tmi.client(opts);
