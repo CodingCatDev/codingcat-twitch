@@ -1,14 +1,14 @@
-const LRU = require('lru-cache');
-const fetch = require('node-fetch');
-const { getTwitchAccessToken } = require('@jlengstorf/get-twitch-oauth');
-const { gql } = require('apollo-server-express');
-const { GraphQLScalarType } = require('graphql');
-const { Kind } = require('graphql/language');
-const { withFilter } = require('graphql-subscriptions');
+const LRU = require("lru-cache");
+const fetch = require("node-fetch");
+const { getTwitchAccessToken } = require("@jlengstorf/get-twitch-oauth");
+const { gql } = require("apollo-server-express");
+const { GraphQLScalarType } = require("graphql");
+const { Kind } = require("graphql/language");
+const { withFilter } = require("graphql-subscriptions");
 // const beeline = require('honeycomb-beeline')();
-const { getCommand, getCommands } = require('./commands');
-const { sendMessage, createChatBot } = require('./chatbot');
-const { logger } = require('./logger');
+const { getCommand, getCommands } = require("./commands");
+const { sendMessage, createChatBot } = require("./chatbot");
+const { logger } = require("./logger");
 
 const recentMessages = new LRU(50);
 
@@ -122,11 +122,11 @@ exports.typeDefs = gql`
   }
 `;
 
-exports.createResolvers = pubsub => {
+exports.createResolvers = (pubsub) => {
   return {
     Date: new GraphQLScalarType({
-      name: 'Date',
-      description: 'A Date object',
+      name: "Date",
+      description: "A Date object",
       parseValue(value) {
         return new Date(value);
       },
@@ -143,7 +143,7 @@ exports.createResolvers = pubsub => {
         logger.info(process.env.TWITCH_CLIENT_ID);
 
         if (!process.env.TWITCH_CLIENT_ID) {
-          console.log('Check env variables! Missing Twitch Client Id');
+          console.log("Check env variables! Missing Twitch Client Id");
         }
 
         const twitchResult = await getTwitchAccessToken({
@@ -155,35 +155,35 @@ exports.createResolvers = pubsub => {
         try {
           const [[user], [stream]] = await Promise.all([
             fetch(`https://api.twitch.tv/helix/users?login=${username}`, {
-              method: 'GET',
+              method: "GET",
               headers: {
                 Authorization: `Bearer ${access_token}`,
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                "Client-ID": process.env.TWITCH_CLIENT_ID,
               },
             })
-              .then(res => res.json())
-              .then(res => res.data)
-              .catch(err => console.error(err)),
+              .then((res) => res.json())
+              .then((res) => res.data)
+              .catch((err) => console.error(err)),
             fetch(
               `https://api.twitch.tv/helix/streams?user_login=${username}`,
               {
-                method: 'GET',
+                method: "GET",
                 headers: {
                   Authorization: `Bearer ${access_token}`,
-                  'Client-ID': process.env.TWITCH_CLIENT_ID,
+                  "Client-ID": process.env.TWITCH_CLIENT_ID,
                 },
-              },
+              }
             )
-              .then(res => res.json())
-              .then(res => res.data)
-              .catch(err => console.error(err)),
+              .then((res) => res.json())
+              .then((res) => res.data)
+              .catch((err) => console.error(err)),
           ]);
 
           return {
             id: user.id,
             username: user.login,
             description: user.description,
-            status: stream?.type === 'live' ? 'LIVE' : 'OFFLINE',
+            status: stream?.type === "live" ? "LIVE" : "OFFLINE",
             stream: stream
               ? {
                   id: stream.id,
@@ -219,7 +219,7 @@ exports.createResolvers = pubsub => {
             const { channel } = variables;
             createChatBot(pubsub, channel);
 
-            return pubsub.asyncIterator(['MESSAGE']);
+            return pubsub.asyncIterator(["MESSAGE"]);
           },
           (payload, variables) => {
             // bail if this message is for a different channel
@@ -236,18 +236,18 @@ exports.createResolvers = pubsub => {
             recentMessages.set(payload.message.time, true);
 
             return true;
-          },
+          }
         ),
       },
     },
     TwitchMessage: {
       __resolveType(data) {
         if (data.command) {
-          return 'TwitchChatCommand';
+          return "TwitchChatCommand";
         } else if (data.type) {
-          return 'TwitchChatEvent';
+          return "TwitchChatEvent";
         } else {
-          return 'TwitchChatMessage';
+          return "TwitchChatMessage";
         }
       },
     },

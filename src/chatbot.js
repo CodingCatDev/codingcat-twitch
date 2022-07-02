@@ -1,11 +1,11 @@
-const tmi = require('tmi.js');
+const tmi = require("tmi.js");
 const {
   parseAuthor,
   parseCommand,
   parseEmotes,
   getMessageHTML,
-} = require('./util/parse-twitch-chat');
-const { logger } = require('./logger');
+} = require("./util/parse-twitch-chat");
+const { logger } = require("./logger");
 
 const clients = new Map();
 
@@ -28,7 +28,7 @@ function getChatClient(channel) {
       channels: [channel],
     });
 
-    client.on('disconnected', () => {
+    client.on("disconnected", () => {
       logger.debug(`${channel} disconnected!`);
       clients.delete(client);
     });
@@ -36,12 +36,12 @@ function getChatClient(channel) {
     clients.set(channel, client);
   }
 
-  if (client.readyState() === 'OPEN') {
+  if (client.readyState() === "OPEN") {
     logger.debug(`client is already connected for ${channel}!`);
     return client;
   }
 
-  if (!['CONNECTING', 'OPEN'].includes(client.readyState())) {
+  if (!["CONNECTING", "OPEN"].includes(client.readyState())) {
     client.connect();
   }
 
@@ -49,7 +49,7 @@ function getChatClient(channel) {
 }
 
 exports.createChatBot = (pubsub, subChannel) => {
-  logger.debug('creating a new chatbot client');
+  logger.debug("creating a new chatbot client");
   const client = getChatClient(subChannel);
 
   logger.debug(`client is ${client.readyState()}`);
@@ -59,28 +59,28 @@ exports.createChatBot = (pubsub, subChannel) => {
   client.removeAllListeners();
 
   function handleSubscription(channel, _username, _method, msg, meta) {
-    const time = new Date(parseInt(meta['tmi-sent-ts']));
+    const time = new Date(parseInt(meta["tmi-sent-ts"]));
 
     const message = {
-      channel: channel.replace('#', ''),
-      message: msg || '',
+      channel: channel.replace("#", ""),
+      message: msg || "",
       author: parseAuthor(channel, meta),
       emotes: parseEmotes(msg, meta.emotes),
       time,
       id: meta.id,
-      type: 'SUBSCRIPTION',
-      details: meta['system-msg'],
+      type: "SUBSCRIPTION",
+      details: meta["system-msg"],
     };
 
-    pubsub.publish('MESSAGE', { message });
+    pubsub.publish("MESSAGE", { message });
   }
 
   // https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#subscription
-  client.on('subscription', handleSubscription);
-  client.on('resub', handleSubscription);
+  client.on("subscription", handleSubscription);
+  client.on("resub", handleSubscription);
 
   // https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#subgift
-  client.on('subgift', handleSubscription);
+  client.on("subgift", handleSubscription);
 
   function TODO(event) {
     return (...payload) => {
@@ -92,31 +92,31 @@ exports.createChatBot = (pubsub, subChannel) => {
   // TODO handle gift subs
   // https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#anongiftpaidupgrade
   // https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#giftpaidupgrade
-  client.on('anongiftpaidupgrade', TODO('anongiftpaidupgrade'));
-  client.on('giftpaidupgrade', TODO('giftpaidupgrade'));
+  client.on("anongiftpaidupgrade", TODO("anongiftpaidupgrade"));
+  client.on("giftpaidupgrade", TODO("giftpaidupgrade"));
 
   // TODO handle bits
   // https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#cheer
-  client.on('cheer', TODO('cheer'));
+  client.on("cheer", TODO("cheer"));
 
   // TODO handle raids
   // https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#raided
-  client.on('raided', TODO('raided'));
+  client.on("raided", TODO("raided"));
 
-  client.on('message', (channel, meta, msg, self) => {
+  client.on("message", (channel, meta, msg, self) => {
     // don’t process messages sent by the chatbot to avoid loops
     if (self) return;
 
-    if (meta['message-type'] === 'whisper') {
+    if (meta["message-type"] === "whisper") {
       // we don’t handle whispers
       return;
     }
 
     // chat activity always includes author and emote data
-    const time = new Date(parseInt(meta['tmi-sent-ts']));
+    const time = new Date(parseInt(meta["tmi-sent-ts"]));
 
     const message = {
-      channel: channel.replace('#', ''),
+      channel: channel.replace("#", ""),
       message: msg,
       author: parseAuthor(channel, meta),
       emotes: parseEmotes(msg, meta.emotes),
@@ -124,17 +124,19 @@ exports.createChatBot = (pubsub, subChannel) => {
       id: meta.id,
     };
 
-    if (msg.startsWith('!')) {
+    if (msg.startsWith("!")) {
       // TODO check if this command is in a cooldown period before sending
       const { command, args } = parseCommand(msg);
 
       message.command = command;
       message.args = args;
+
+      commandResponse(client, command);
     } else {
       message.html = getMessageHTML(msg, message.emotes);
     }
 
-    pubsub.publish('MESSAGE', { message });
+    pubsub.publish("MESSAGE", { message });
   });
 };
 
@@ -146,3 +148,21 @@ exports.sendMessage = async ({ channel, message }) => {
 
   client.say(channel, message);
 };
+
+const commandResponse = (client, command) => {
+  switch (command) {
+    case "dice":
+      const num = rollDice();
+      client.say(target, `You rolled a ${num}`);
+      break;
+
+    default:
+      console.log(`* Unknown command ${command}`);
+      break;
+  }
+};
+
+function rollDice() {
+  const sides = 6;
+  return Math.floor(Math.random() * sides) + 1;
+}

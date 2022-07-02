@@ -1,15 +1,15 @@
-const fetch = require('node-fetch');
-const { logger } = require('./logger');
+const fetch = require("node-fetch");
+const { logger } = require("./logger");
 
 async function getCommandsForChannel(channel) {
   const { effects } = await fetch(process.env.HASURA_GRAPHQL_URI, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      'X-Hasura-Admin-Secret': process.env.HASURA_ADMIN_SECRET,
-      'X-Hasura-Role': 'overlay',
-      'X-Hasura-Channel': channel,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "X-Hasura-Admin-Secret": process.env.HASURA_ADMIN_SECRET,
+      "X-Hasura-Role": "overlay",
+      "X-Hasura-Channel": channel,
     },
     body: JSON.stringify({
       query: `
@@ -22,14 +22,14 @@ async function getCommandsForChannel(channel) {
       `,
     }),
   })
-    .then(res => res.json())
-    .then(res => res.data)
-    .catch(err => console.error(err));
+    .then((res) => res.json())
+    .then((res) => res.data)
+    .catch((err) => console.error(err));
 
   return effects;
 }
 
-exports.getCommands = async channel => {
+exports.getCommands = async (channel) => {
   const commands = await getCommandsForChannel(channel);
 
   return commands.map(({ command }) => `!${command}`);
@@ -43,7 +43,7 @@ exports.getCommand = async ({
   message: originalChatMessage,
 }) => {
   const commands = await getCommandsForChannel(channel);
-  const cmd = commands.find(c => c.command === command);
+  const cmd = commands.find((c) => c.command === command);
 
   logger.info({ cmd });
 
@@ -55,12 +55,12 @@ exports.getCommand = async ({
     const {
       name,
       message = null,
-      description = '',
+      description = "",
       audio = null,
       image = null,
       duration = 4,
     } = await fetch(cmd.handler, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         message: originalChatMessage,
         command,
@@ -71,8 +71,8 @@ exports.getCommand = async ({
         },
       }),
     })
-      .then(res => res.json())
-      .catch(err => {
+      .then((res) => res.json())
+      .catch((err) => {
         logger.info({ err });
         throw new Error(err.message);
       });

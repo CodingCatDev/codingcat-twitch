@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 // require('honeycomb-beeline')({
 //   writeKey: process.env.HONEYCOMB_API_KEY,
 //   dataset: 'stream-blitz-prod', // <= name this whatever you want
@@ -6,16 +6,16 @@ require('dotenv').config();
 //   /* ... additional optional configuration ... */
 // });
 
-const { createServer } = require('http');
-const express = require('express');
-const pinoHttp = require('pino-http');
-const { PubSub } = require('graphql-subscriptions');
-const { ApolloServer } = require('apollo-server-express');
-const { SubscriptionServer } = require('subscriptions-transport-ws');
-const { execute, subscribe } = require('graphql');
-const { makeExecutableSchema } = require('graphql-tools');
-const { typeDefs, createResolvers } = require('./schema');
-const { logger } = require('./logger');
+const { createServer } = require("http");
+const express = require("express");
+const pinoHttp = require("pino-http");
+const { PubSub } = require("graphql-subscriptions");
+const { ApolloServer } = require("apollo-server-express");
+const { SubscriptionServer } = require("subscriptions-transport-ws");
+const { execute, subscribe } = require("graphql");
+const { makeExecutableSchema } = require("graphql-tools");
+const { typeDefs, createResolvers } = require("./schema");
+const { logger } = require("./logger");
 
 const PORT = process.env.PORT || 9797;
 
@@ -32,7 +32,7 @@ async function main() {
     introspection: true,
   });
 
-  app.use(pinoHttp({ logger, useLevel: 'debug' }));
+  app.use(pinoHttp({ logger, useLevel: "debug" }));
 
   server.applyMiddleware({ app });
 
@@ -49,8 +49,8 @@ async function main() {
       },
       {
         server: ws,
-        path: '/graphql',
-      },
+        path: "/graphql",
+      }
     );
   });
 }
