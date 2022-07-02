@@ -1,0 +1,14 @@
+{
+  "name": "codingcat-twitch",
+  "version": "0.0.1",
+  "description": "Twitch Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Alex Patterson",
+  "license": "MIT",
+  "dependencies": {
+    "tmi.js": "^1.8.5"
+  }
+}
