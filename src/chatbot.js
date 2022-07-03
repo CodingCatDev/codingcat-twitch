@@ -48,7 +48,7 @@ function getChatClient(channel) {
   return client;
 }
 
-exports.createChatBot = (pubsub, subChannel) => {
+exports.createChatBot = async (pubsub, subChannel) => {
   logger.debug("creating a new chatbot client");
   const client = getChatClient(subChannel);
 
@@ -149,7 +149,7 @@ exports.sendMessage = async ({ channel, message }) => {
   client.say(channel, message);
 };
 
-const commandResponse = (command) => {
+const commandResponse = async (command) => {
   const client = await getChatClient(channel);
 
   switch (command) {
