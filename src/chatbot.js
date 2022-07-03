@@ -149,7 +149,9 @@ exports.sendMessage = async ({ channel, message }) => {
   client.say(channel, message);
 };
 
-const commandResponse = (client, command) => {
+const commandResponse = (command) => {
+  const client = await getChatClient(channel);
+
   switch (command) {
     case "dice":
       const num = rollDice();
