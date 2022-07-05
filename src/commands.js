@@ -2,6 +2,9 @@ const fetch = require("node-fetch");
 const { logger } = require("./logger");
 
 async function getCommandsForChannel(channel) {
+  if (!process.env.HASURA_GRAPHQL_URI) {
+    return null;
+  }
   const { effects } = await fetch(process.env.HASURA_GRAPHQL_URI, {
     method: "POST",
     headers: {
@@ -31,7 +34,9 @@ async function getCommandsForChannel(channel) {
 
 exports.getCommands = async (channel) => {
   const commands = await getCommandsForChannel(channel);
-
+  if (!commands) {
+    return [];
+  }
   return commands.map(({ command }) => `!${command}`);
 };
 
@@ -43,6 +48,9 @@ exports.getCommand = async ({
   message: originalChatMessage,
 }) => {
   const commands = await getCommandsForChannel(channel);
+  if (!commands) {
+    return null;
+  }
   const cmd = commands.find((c) => c.command === command);
 
   logger.info({ cmd });

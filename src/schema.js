@@ -17,7 +17,7 @@ exports.typeDefs = gql`
 
   type Query {
     channel(username: String!): TwitchChannel!
-    commands(username: String!): [String!]!
+    commands(username: String!): [String!]
   }
 
   enum TwitchChannelStatus {
