@@ -9,27 +9,19 @@ const API =
 console.log("process.env.API", process.env.API);
 console.log("API", API);
 
-async function getCommandsForChannel(channel) {
-  const effects = [
-    {
-      command: "adult",
-      handler: "adult",
-    },
-    {
-      command: "behold",
-      handler: "behold",
-    },
-    {
-      command: "jamstack",
-      handler: "jamstack",
-    },
-    {
-      command: "so",
-      handler: "shout-out",
-    },
-  ];
+var admin = require("firebase-admin");
+var { config } = require("./config/firebase");
 
-  return effects;
+admin.initializeApp({
+  credential: admin.credential.cert(config),
+  databaseURL: "https://codingcat-dev.firebaseio.com",
+});
+
+async function getCommandsForChannel(channel) {
+  const commandsRef = await admin.firestore().doc(`overlays/alex`).get();
+  const { commands } = commandsRef.data();
+
+  return commands;
 }
 
 exports.getCommands = async (channel) => {
