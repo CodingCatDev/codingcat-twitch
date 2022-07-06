@@ -6,6 +6,9 @@ const API =
     ? process.env.API
     : "http://localhost:3000/api/";
 
+console.log("process.env.API", process.env.API);
+console.log("API", API);
+
 async function getCommandsForChannel(channel) {
   const effects = [
     {
