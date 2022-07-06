@@ -17,15 +17,15 @@ async function getCommandsForChannel(channel) {
     },
     {
       command: "behold",
-      name: "behold",
+      handler: "behold",
     },
     {
       command: "jamstack",
-      name: "jamstack",
+      handler: "jamstack",
     },
     {
       command: "so",
-      name: "shout-out",
+      handler: "shout-out",
     },
   ];
 
