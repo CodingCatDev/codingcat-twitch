@@ -16,6 +16,14 @@ async function getCommandsForChannel(channel) {
       command: "behold",
       name: "behold",
     },
+    {
+      command: "jamstack",
+      name: "jamstack",
+    },
+    {
+      command: "so",
+      name: "shout-out",
+    },
   ];
 
   return effects;
