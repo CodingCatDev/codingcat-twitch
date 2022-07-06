@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@jlengstorf/get-twitch-oauth": "^1.0.0",
+    "@stream-blitz/create-handler": "^2.0.3",
     "apollo-server-express": "^2.18.2",
     "basic-auth": "^2.0.1",
     "body-parser": "^1.19.0",

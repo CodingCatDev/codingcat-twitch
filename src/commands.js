@@ -1,33 +1,22 @@
 const fetch = require("node-fetch");
 const { logger } = require("./logger");
 
+const API =
+  process.env.NODE_ENV === "production"
+    ? process.env.API
+    : "http://localhost:3000/api/";
+
 async function getCommandsForChannel(channel) {
-  if (!process.env.HASURA_GRAPHQL_URI) {
-    return null;
-  }
-  const { effects } = await fetch(process.env.HASURA_GRAPHQL_URI, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "X-Hasura-Admin-Secret": process.env.HASURA_ADMIN_SECRET,
-      "X-Hasura-Role": "overlay",
-      "X-Hasura-Channel": channel,
+  const effects = [
+    {
+      command: "adult",
+      handler: "adult",
     },
-    body: JSON.stringify({
-      query: `
-        query {
-          effects {
-            command
-            handler
-          }
-        }
-      `,
-    }),
-  })
-    .then((res) => res.json())
-    .then((res) => res.data)
-    .catch((err) => console.error(err));
+    {
+      command: "behold",
+      name: "behold",
+    },
+  ];
 
   return effects;
 }
@@ -67,7 +56,7 @@ exports.getCommand = async ({
       audio = null,
       image = null,
       duration = 4,
-    } = await fetch(cmd.handler, {
+    } = await fetch(`${API}${cmd.handler}`, {
       method: "POST",
       body: JSON.stringify({
         message: originalChatMessage,

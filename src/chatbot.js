@@ -75,24 +75,6 @@ exports.createChatBot = async (pubsub, subChannel) => {
     pubsub.publish("MESSAGE", { message });
   }
 
-  const commandResponse = async (client, command) => {
-    switch (command) {
-      case "dice":
-        const num = rollDice();
-        client.say(subChannel, `You rolled a ${num}`);
-        break;
-
-      default:
-        console.log(`* Unknown command ${command}`);
-        break;
-    }
-  };
-
-  function rollDice() {
-    const sides = 6;
-    return Math.floor(Math.random() * sides) + 1;
-  }
-
   // https://github.com/tmijs/docs/blob/gh-pages/_posts/v1.4.2/2019-03-03-Events.md#subscription
   client.on("subscription", handleSubscription);
   client.on("resub", handleSubscription);
@@ -103,7 +85,7 @@ exports.createChatBot = async (pubsub, subChannel) => {
   function TODO(event) {
     return (...payload) => {
       // uncomment to see paylaods
-      // console.log({ type: event, payload });
+      console.log({ type: event, payload });
     };
   }
 
@@ -153,11 +135,20 @@ exports.createChatBot = async (pubsub, subChannel) => {
       message.command = command;
       message.args = args;
 
-      commandResponse(client, command);
+      // commandResponse(client, command);
     } else {
       message.html = getMessageHTML(msg, message.emotes);
     }
 
     pubsub.publish("MESSAGE", { message });
   });
+};
+
+exports.sendMessage = async ({ channel, message }) => {
+  if (!channel || !message) return;
+  logger.info({ channel, message });
+
+  const client = await getChatClient(channel);
+
+  client.say(channel, message);
 };
