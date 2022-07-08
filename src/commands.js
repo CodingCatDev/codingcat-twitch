@@ -17,12 +17,12 @@ admin.initializeApp({
   databaseURL: "https://codingcat-dev.firebaseio.com",
 });
 
-async function getCommandsForChannel(channel) {
+exports.getCommandsForChannel = async (channel) => {
   const commandsRef = await admin.firestore().doc(`overlays/alex`).get();
   const { commands } = commandsRef.data();
 
   return commands;
-}
+};
 
 exports.getCommands = async (channel) => {
   const commands = await getCommandsForChannel(channel);

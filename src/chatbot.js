@@ -6,6 +6,8 @@ const {
   getMessageHTML,
 } = require("./util/parse-twitch-chat");
 const { logger } = require("./logger");
+const { getCommandsForChannel } = require("./commands");
+const { urlencoded } = require("body-parser");
 
 const clients = new Map();
 
@@ -135,12 +137,23 @@ exports.createChatBot = async (pubsub, subChannel) => {
       message.command = command;
       message.args = args;
 
-      // commandResponse(client, command);
+      if (command === "showcommands") {
+        handleShowCommands();
+      }
     } else {
       message.html = getMessageHTML(msg, message.emotes);
     }
 
     pubsub.publish("MESSAGE", { message });
+  });
+};
+
+const handleShowCommands = async () => {
+  const cs = await getCommandsForChannel();
+  const goodCommands = cs.map((c) => `!${c.command}`);
+  this.sendMessage({
+    channel: "codingcatdev",
+    message: `> ${goodCommands.join(" | ")}`,
   });
 };
 
