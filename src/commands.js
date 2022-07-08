@@ -25,7 +25,7 @@ exports.getCommandsForChannel = async (channel) => {
 };
 
 exports.getCommands = async (channel) => {
-  const commands = await getCommandsForChannel(channel);
+  const commands = await this.getCommandsForChannel(channel);
   if (!commands) {
     return [];
   }
@@ -39,7 +39,7 @@ exports.getCommand = async ({
   args,
   message: originalChatMessage,
 }) => {
-  const commands = await getCommandsForChannel(channel);
+  const commands = await this.getCommandsForChannel(channel);
   if (!commands) {
     return null;
   }
