@@ -8,6 +8,11 @@ const {
 const { logger } = require("./logger");
 const { getCommandsForChannel } = require("./commands");
 const { urlencoded } = require("body-parser");
+const { StaticAuthProvider } = require("twitch-auth");
+const authProvider = new StaticAuthProvider(
+  process.env.TWITCH_OAUTH, // This is the token from https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#oauth-client-credentials-flow
+  process.env.TWITCH_BOT_USER
+);
 
 const clients = new Map();
 
@@ -19,14 +24,12 @@ function getChatClient(channel) {
   } else {
     logger.debug(`creating a new connection for ${channel}`);
     client = new tmi.Client({
+      options: { debug: true, messagesLogLevel: "info" },
       connection: {
         secure: true,
         reconnect: true,
       },
-      identity: {
-        username: process.env.TWITCH_BOT_USER,
-        password: process.env.TWITCH_OAUTH,
-      },
+      authProvider,
       channels: [channel],
     });
 

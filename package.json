@@ -33,6 +33,7 @@
     "pino-pretty": "^4.3.0",
     "subscriptions-transport-ws": "^0.9.18",
     "tmi.js": "^1.5.0",
+    "twitch-auth": "^4.6.7",
     "uuid-apikey": "^1.4.6"
   },
   "devDependencies": {
